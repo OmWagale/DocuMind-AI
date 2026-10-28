@@ -1,0 +1,1 @@
+An AI-powered document assistant that uses Retrieval-Augmented Generation (RAG), text embeddings, vector search, and LLMs to answer questions based on uploaded PDFs.
