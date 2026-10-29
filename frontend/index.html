@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DocuMind AI — Ask questions and get answers from your PDF documents.">
+
+    <title>DocuMind AI | Intelligent PDF Assistant</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/script.js" defer></script>
+</head>
+
+<body>
+    <div class="app-container">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">D</div>
+                <div>
+                    <h1>DocuMind<span> AI</span></h1>
+                    <p>PDF Intelligence</p>
+                </div>
+            </div>
+
+            <button type="button" class="new-chat-btn" id="new-chat-btn">
+                <span>＋</span> New conversation
+            </button>
+
+            <div class="sidebar-section">
+                <p class="section-label">WORKSPACE</p>
+
+                <div class="sidebar-item active">
+                    <span>▤</span>
+                    <span>Document Chat</span>
+                </div>
+
+                <div class="sidebar-item">
+                    <span>◷</span>
+                    <span>Recent activity</span>
+                </div>
+            </div>
+
+            <div class="documents-section">
+                <div class="section-heading">
+                    <p class="section-label">YOUR DOCUMENTS</p>
+                    <span class="document-count" id="document-count">0</span>
+                </div>
+
+                <div id="document-list" class="document-list">
+                    <div class="empty-documents">
+                        <span class="empty-icon">▤</span>
+                        <p>No documents uploaded yet</p>
+                        <small>Your PDFs will appear here.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="status-dot"></div>
+                <span>AI workspace</span>
+                <span class="version">v1.0</span>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <p class="breadcrumb">
+                    Workspace / <strong>Document Chat</strong>
+                </p>
+
+                <div class="topbar-right">
+                    <span class="privacy-label">
+                        <span>●</span> Document-based answers
+                    </span>
+                    <div class="user-avatar" title="User profile">U</div>
+                </div>
+            </header>
+
+            <section class="chat-workspace" id="chat-workspace">
+
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-icon">✦</div>
+
+                    <p class="eyebrow">YOUR PERSONAL DOCUMENT ASSISTANT</p>
+
+                    <h2>
+                        Understand your documents.<br>
+                        <span>Find answers faster.</span>
+                    </h2>
+
+                    <p class="welcome-description">
+                        Upload a PDF and ask questions in plain English.
+                        DocuMind AI helps you discover useful information
+                        with answers grounded in your documents.
+                    </p>
+
+                    <div class="upload-card" id="upload-card">
+                        <div class="upload-icon">↑</div>
+
+                        <h3>Upload your PDF</h3>
+
+                        <p>Choose a document from your computer to get started.</p>
+
+                        <label for="pdf-input" class="upload-button">
+                            <span>＋</span> Choose PDF
+                        </label>
+
+                        <input
+                            type="file"
+                            id="pdf-input"
+                            accept=".pdf,application/pdf"
+                            hidden
+                        >
+
+                        <p class="file-hint">PDF files only</p>
+                    </div>
+
+                    <div class="suggestions">
+                        <p class="section-label">WHAT YOU CAN ASK</p>
+
+                        <div class="suggestion-grid">
+                            <button type="button"
+                                class="suggestion-card"
+                                data-question="Summarize this document.">
+                                <span>✧</span>
+                                <strong>Summarize</strong>
+                                <small>Give me the main points</small>
+                            </button>
+
+                            <button type="button"
+                                class="suggestion-card"
+                                data-question="What are the key findings in this document?">
+                                <span>⌕</span>
+                                <strong>Find key insights</strong>
+                                <small>Discover important information</small>
+                            </button>
+
+                            <button type="button"
+                                class="suggestion-card"
+                                data-question="Explain the most important concepts in simple language.">
+                                <span>◇</span>
+                                <strong>Explain concepts</strong>
+                                <small>Make complex ideas simpler</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages" hidden>
+                </div>
+
+            </section>
+
+            <footer class="composer-area">
+                <div class="composer-container">
+
+                    <form id="chat-form" class="chat-form">
+                        <textarea
+                            id="question-input"
+                            name="question"
+                            rows="1"
+                            placeholder="Upload a PDF to start asking questions..."
+                            aria-label="Ask a question about your PDF"
+                            disabled
+                        ></textarea>
+
+                        <button
+                            type="submit"
+                            id="send-button"
+                            class="send-button"
+                            aria-label="Send question"
+                            disabled
+                        >↑</button>
+                    </form>
+
+                    <div class="composer-footer">
+                        <span>Answers are based on your uploaded documents.</span>
+                        <span>Powered by DocuMind AI</span>
+                    </div>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
