@@ -1,5 +1,5 @@
 
-import fitz
+import pymupdf
 from pathlib import Path
 
 
@@ -36,7 +36,7 @@ def extract_text_from_pdf(pdf_path):
 
     try:
         # Open the PDF document
-        with fitz.open(str(pdf_path)) as pdf:
+        with pymupdf.open(str(pdf_path)) as pdf:
 
             # Check whether the PDF contains pages
             if pdf.page_count == 0:
