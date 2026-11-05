@@ -1,7 +1,7 @@
 
 import os
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
@@ -14,7 +14,16 @@ from src.qa_chain import generate_answer
 
 # Initialize Flask application
 app = Flask(__name__)
+# Serve frontend homepage
+@app.route("/")
+def home():
+    return send_from_directory("frontend", "index.html")
 
+
+# Serve frontend CSS and JavaScript files
+@app.route("/<path:filename>")
+def frontend_files(filename):
+    return send_from_directory("frontend", filename)
 # Enable CORS
 CORS(app)
 
