@@ -52,7 +52,7 @@ function formatMarkdown(text) {
 
     // Unordered lists
     html = html.replace(/^\s*[-*] (.+)$/gm, "<li>$1</li>");
-    html = html.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
+    html = html.replace(/((?:<li>.*?<\/li>\s*)+)/gs, "<ul>$1</ul>");
 
     // Line breaks
     html = html.replace(/\n/g, "<br>");
@@ -74,6 +74,31 @@ function addMessage(text, sender) {
         content.textContent = text;
     }
 
+    message.appendChild(content);
+    chatMessages.appendChild(message);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return message;
+}
+
+// Create animated loading message
+function addLoadingMessage() {
+    const message = document.createElement("div");
+    message.className = "message assistant";
+
+    const content = document.createElement("div");
+    content.className = "message-content";
+
+    const loadingDots = document.createElement("div");
+    loadingDots.className = "loading-dots";
+
+    for (let i = 0; i < 3; i++) {
+        const dot = document.createElement("span");
+        loadingDots.appendChild(dot);
+    }
+
+    content.appendChild(loadingDots);
     message.appendChild(content);
     chatMessages.appendChild(message);
 
@@ -197,11 +222,8 @@ chatForm.addEventListener("submit", async (event) => {
     sendButton.disabled = true;
     questionInput.disabled = true;
 
-    // Show loading message
-    const loadingMessage = addMessage(
-        "Thinking...",
-        "assistant"
-    );
+    // Show animated loading indicator
+    const loadingMessage = addLoadingMessage();
 
     try {
         const response = await fetch(`${API_BASE_URL}/ask`, {
