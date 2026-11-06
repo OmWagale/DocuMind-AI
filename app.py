@@ -9,11 +9,12 @@ from src.pdf_processor import extract_text_from_pdf
 from src.chunking import split_text_into_chunks
 from src.embeddings import load_embedding_model, generate_embeddings
 from src.retriever import build_faiss_index, search_similar_chunks
-from src.qa_chain import generate_answer
+from src.qa_chain import generate_answer, generate_quiz
 
 
 # Initialize Flask application
 app = Flask(__name__)
+
 # Serve frontend homepage
 @app.route("/")
 def home():
@@ -24,6 +25,8 @@ def home():
 @app.route("/<path:filename>")
 def frontend_files(filename):
     return send_from_directory("frontend", filename)
+
+
 # Enable CORS
 CORS(app)
 
@@ -117,7 +120,7 @@ def upload_pdf():
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     file.save(file_path)
 
-    # Process the uploaded PDF
+    # Process uploaded PDF
     try:
         new_index, new_chunks = process_pdf(file_path)
 
@@ -135,6 +138,7 @@ def upload_pdf():
         "total_chunks": len(document_chunks)
     }), 200
 
+
 # Question Answering API
 @app.route("/ask", methods=["POST"])
 def ask_question():
@@ -146,7 +150,7 @@ def ask_question():
         }), 400
 
     # Get question from request
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
     if not data or "question" not in data:
         return jsonify({
@@ -185,7 +189,10 @@ def ask_question():
             "question": query,
             "answer": answer,
             "sources": [
-                {"page": chunk["page"], "text": chunk["text"]}
+                {
+                    "page": chunk["page"],
+                    "text": chunk["text"]
+                }
                 for chunk in retrieved_chunks
             ]
         }), 200
@@ -194,6 +201,75 @@ def ask_question():
         return jsonify({
             "error": f"Unable to generate answer: {str(error)}"
         }), 500
+
+
+# Quiz Generation API
+@app.route("/generate-quiz", methods=["POST"])
+def create_quiz():
+
+    # Check whether a PDF has been uploaded
+    if document_chunks is None:
+        return jsonify({
+            "error": "Please upload a PDF before generating a quiz."
+        }), 400
+
+    # Get quiz settings
+    data = request.get_json(silent=True)
+
+    if not data:
+        data = {}
+
+    num_questions = data.get("num_questions", 5)
+    difficulty = data.get("difficulty", "Medium")
+
+    # Validate number of questions
+    try:
+        num_questions = int(num_questions)
+    except (ValueError, TypeError):
+        return jsonify({
+            "error": "Number of questions must be a valid integer."
+        }), 400
+
+    if not 1 <= num_questions <= 20:
+        return jsonify({
+            "error": "Number of questions must be between 1 and 20."
+        }), 400
+
+    # Validate difficulty
+    if not isinstance(difficulty, str):
+        return jsonify({
+            "error": "Difficulty must be Easy, Medium, or Hard."
+        }), 400
+
+    difficulty = difficulty.capitalize()
+
+    if difficulty not in ["Easy", "Medium", "Hard"]:
+        return jsonify({
+            "error": "Difficulty must be Easy, Medium, or Hard."
+        }), 400
+
+    try:
+        # Generate quiz using all uploaded PDF chunks
+        quiz_data = generate_quiz(
+            document_chunks,
+            num_questions=num_questions,
+            difficulty=difficulty
+        )
+
+        return jsonify({
+            "message": "Quiz generated successfully!",
+            "difficulty": difficulty,
+            "total_questions": len(quiz_data["questions"]),
+            "quiz": quiz_data
+        }), 200
+
+    except Exception as error:
+        return jsonify({
+            "error": f"Unable to generate quiz: {str(error)}"
+        }), 500
+
+
 # Run Flask application
 if __name__ == "__main__":
     app.run(debug=True)
+

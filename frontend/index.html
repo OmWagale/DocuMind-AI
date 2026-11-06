@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DocuMind AI — Ask questions and get answers from your PDF documents.">
+    <meta name="description" content="DocuMind AI — Chat with PDFs, generate quizzes and learn from your documents.">
 
     <title>DocuMind AI | Intelligent PDF Assistant</title>
 
@@ -34,10 +34,15 @@
             <div class="sidebar-section">
                 <p class="section-label">WORKSPACE</p>
 
-                <div class="sidebar-item active">
+                <button type="button" class="sidebar-item active" id="chat-nav-btn">
                     <span>▤</span>
                     <span>Document Chat</span>
-                </div>
+                </button>
+
+                <button type="button" class="sidebar-item" id="quiz-nav-btn">
+                    <span>✎</span>
+                    <span>Quiz Generator</span>
+                </button>
 
                 <div class="sidebar-item">
                     <span>◷</span>
@@ -70,7 +75,7 @@
         <main class="main-content">
 
             <header class="topbar">
-                <p class="breadcrumb">
+                <p class="breadcrumb" id="breadcrumb">
                     Workspace / <strong>Document Chat</strong>
                 </p>
 
@@ -84,6 +89,7 @@
 
             <section class="chat-workspace" id="chat-workspace">
 
+                <!-- Welcome screen -->
                 <div class="welcome-screen" id="welcome-screen">
                     <div class="welcome-icon">✦</div>
 
@@ -122,9 +128,10 @@
                     </div>
 
                     <div class="suggestions">
-                        <p class="section-label">WHAT YOU CAN ASK</p>
+                        <p class="section-label">WHAT YOU CAN DO</p>
 
                         <div class="suggestion-grid">
+
                             <button type="button"
                                 class="suggestion-card"
                                 data-question="Summarize this document.">
@@ -148,16 +155,100 @@
                                 <strong>Explain concepts</strong>
                                 <small>Make complex ideas simpler</small>
                             </button>
+
+                            <button type="button"
+                                class="suggestion-card"
+                                id="welcome-quiz-btn">
+                                <span>✎</span>
+                                <strong>Generate Quiz</strong>
+                                <small>Test your knowledge with MCQs</small>
+                            </button>
+
                         </div>
                     </div>
                 </div>
 
+                <!-- Chat messages -->
                 <div class="chat-messages" id="chat-messages" hidden>
+                </div>
+
+                <!-- Quiz workspace -->
+                <div class="quiz-workspace" id="quiz-workspace" hidden>
+
+                    <div class="quiz-header">
+                        <p class="eyebrow">AI-POWERED LEARNING</p>
+
+                        <h2>Test your <span>knowledge.</span></h2>
+
+                        <p>
+                            Generate a quiz based on your uploaded PDF
+                            and test how well you understand its content.
+                        </p>
+                    </div>
+
+                    <!-- Quiz settings -->
+                    <div class="quiz-settings" id="quiz-settings">
+
+                        <div class="quiz-setting-heading">
+                            <h3>Customize your quiz</h3>
+                            <p>Choose your preferred quiz settings.</p>
+                        </div>
+
+                        <div class="quiz-options">
+
+                            <div class="quiz-option">
+                                <label for="quiz-question-count">
+                                    Number of questions
+                                </label>
+
+                                <select id="quiz-question-count">
+                                    <option value="5" selected>5 Questions</option>
+                                    <option value="10">10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                    <option value="20">20 Questions</option>
+                                </select>
+                            </div>
+
+                            <div class="quiz-option">
+                                <label for="quiz-difficulty">
+                                    Difficulty level
+                                </label>
+
+                                <select id="quiz-difficulty">
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <button type="button"
+                            class="generate-quiz-btn"
+                            id="generate-quiz-btn">
+                            <span>✦</span> Generate Quiz
+                        </button>
+
+                        <p class="quiz-hint">
+                            Questions will be generated using your uploaded PDF.
+                        </p>
+
+                    </div>
+
+                    <!-- Quiz questions will be rendered here -->
+                    <div class="quiz-content" id="quiz-content" hidden>
+                    </div>
+
+                    <!-- Quiz results will be rendered here -->
+                    <div class="quiz-results" id="quiz-results" hidden>
+                    </div>
+
                 </div>
 
             </section>
 
-            <footer class="composer-area">
+            <!-- Chat composer -->
+            <footer class="composer-area" id="composer-area">
                 <div class="composer-container">
 
                     <form id="chat-form" class="chat-form">
@@ -189,6 +280,8 @@
         </main>
     </div>
 
+    <!-- Toast notifications -->
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
 </body>
 </html>
