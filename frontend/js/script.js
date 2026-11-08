@@ -62,20 +62,16 @@ function escapeHTML(text) {
 function formatMarkdown(text) {
     let html = escapeHTML(text);
 
-    // Headings
     html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
     html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
     html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
 
-    // Bold and italic
     html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
 
-    // Unordered lists
     html = html.replace(/^\s*[-*] (.+)$/gm, "<li>$1</li>");
     html = html.replace(/((?:<li>.*?<\/li>\s*)+)/gs, "<ul>$1</ul>");
 
-    // Line breaks
     html = html.replace(/\n/g, "<br>");
 
     return html;
@@ -131,7 +127,16 @@ function addLoadingMessage() {
 }
 
 
-// Display source references
+// Clean extracted source text
+function cleanSourceText(text) {
+    return String(text || "")
+        .replace(/\[object Object\]/gi, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+
+// Display source references grouped by page
 function addSources(sources, message) {
     if (!sources || sources.length === 0) return;
 
@@ -140,19 +145,56 @@ function addSources(sources, message) {
 
     const heading = document.createElement("strong");
     heading.textContent = "Sources";
+
     sourceContainer.appendChild(heading);
 
-    const pages = [...new Set(
-        sources.map(source => source.page)
-    )];
+    const pageGroups = new Map();
 
-    pages.forEach(page => {
-        const source = document.createElement("p");
-        source.textContent = `Page ${page}`;
-        sourceContainer.appendChild(source);
+    sources.forEach(source => {
+        const page = source.page;
+        const text = cleanSourceText(source.text);
+
+        if (!text) return;
+
+        if (!pageGroups.has(page)) {
+            pageGroups.set(page, []);
+        }
+
+        const snippets = pageGroups.get(page);
+
+        if (!snippets.includes(text) && snippets.length < 2) {
+            snippets.push(text);
+        }
     });
 
+    pageGroups.forEach((snippets, page) => {
+        const pageSection = document.createElement("details");
+        pageSection.className = "source-page";
+
+        const pageHeading = document.createElement("summary");
+        pageHeading.textContent = `Page ${page}`;
+
+        pageSection.appendChild(pageHeading);
+
+        snippets.forEach(text => {
+            const snippet = document.createElement("p");
+            snippet.className = "source-snippet";
+
+            snippet.textContent =
+                text.length > 250
+                    ? text.substring(0, 250).trimEnd() + "..."
+                    : text;
+
+            pageSection.appendChild(snippet);
+        });
+
+        sourceContainer.appendChild(pageSection);
+    });
+
+    if (pageGroups.size === 0) return;
+
     message.appendChild(sourceContainer);
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
@@ -235,20 +277,16 @@ pdfInput.addEventListener("change", async () => {
         uploadedDocument = true;
         currentFilename = data.filename;
 
-        // Show chat screen
         showWorkspace("chat");
         welcomeScreen.hidden = true;
         chatMessages.hidden = false;
 
-        // Enable question input
         questionInput.disabled = false;
         sendButton.disabled = false;
         questionInput.placeholder = "Ask anything about your PDF...";
 
-        // Reset previous quiz
         resetQuiz();
 
-        // Update document list
         documentCount.textContent = "1";
         documentList.replaceChildren();
 
@@ -291,14 +329,12 @@ chatForm.addEventListener("submit", async (event) => {
         return;
     }
 
-    // Display user's question
     addMessage(question, "user");
 
     questionInput.value = "";
     sendButton.disabled = true;
     questionInput.disabled = true;
 
-    // Show animated loading indicator
     const loadingMessage = addLoadingMessage();
 
     try {
@@ -318,11 +354,9 @@ chatForm.addEventListener("submit", async (event) => {
             throw new Error(data.error || "Unable to get an answer.");
         }
 
-        // Display formatted answer
         loadingMessage.querySelector(".message-content").innerHTML =
             formatMarkdown(data.answer);
 
-        // Display source pages
         addSources(data.sources, loadingMessage);
 
     } catch (error) {
@@ -472,7 +506,6 @@ function renderQuiz() {
         quizContent.appendChild(card);
     });
 
-    // Submit quiz button
     const submitButton = document.createElement("button");
     submitButton.type = "button";
     submitButton.className = "submit-quiz-btn";
@@ -483,6 +516,7 @@ function renderQuiz() {
     quizContent.appendChild(submitButton);
 
     quizContent.hidden = false;
+
     quizContent.scrollIntoView({
         behavior: "smooth",
         block: "start"
@@ -559,7 +593,6 @@ function displayQuizResults(score) {
 
     quizResults.appendChild(resultHeader);
 
-    // Display individual answer reviews
     const reviewHeading = document.createElement("h3");
     reviewHeading.className = "quiz-review-heading";
     reviewHeading.textContent = "Answer Review";
@@ -610,7 +643,6 @@ function displayQuizResults(score) {
         quizResults.appendChild(reviewCard);
     });
 
-    // Generate another quiz button
     const retryButton = document.createElement("button");
     retryButton.type = "button";
     retryButton.className = "generate-quiz-btn";
@@ -644,6 +676,7 @@ chatNavButton.addEventListener("click", () => {
 
     showWorkspace("chat");
 });
+
 
 quizNavButton.addEventListener("click", () => {
     showWorkspace("quiz");
@@ -690,6 +723,7 @@ newChatButton.addEventListener("click", () => {
         showToast(
             "Conversation cleared. Your uploaded PDF is still available."
         );
+
     } else {
         quizWorkspace.hidden = true;
         chatMessages.hidden = true;
