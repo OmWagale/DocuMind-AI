@@ -176,7 +176,7 @@ def ask_question():
             query_embedding,
             document_index,
             document_chunks,
-            top_k=3
+            top_k=5
         )
 
         # Generate answer using Gemini
